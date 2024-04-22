@@ -20,28 +20,35 @@ app.get("/", function (req, res) {
 
 
 // your first API endpoint... 
-/*app.get("/api/hello", function (req, res) {
-  res.json({greeting: 'hello API'});
-}); */
+app.get("/api/", function (req, res) {
+  let rDate = new Date();
+  res.json({utc: rDate.toUTCString(), unix: Math.floor(rDate.getTime())});
+});
 
 app.get("/api/:date", function (request, response) {
   let rDate;
-  if (isNaN(request.params.date)) {
-    try {
+  try {
+    if (request.params.date == "") {
+      rDate = new Date();
+    } else if (!isNaN(request.params.date)) {
+      rDate = new Date(Number(request.params.date) );
+    } else {
       rDate = new Date(request.params.date);
-    } catch(err) {
-      rDate= "Invalid Date";
-    }  
-  } else {
-    try {
-      rDate = new Date(request.params.date * 1000);
-    } catch(err) {
-      rDate = "Invalid Date";
     }
-  } 
-  let uUTC = rDate.toUTCString();
-  let uDate = Math.floor(rDate.getTime() / 1000); 
-  response.json({utc : uUTC, unix: uDate});
+  }
+  catch(err) {
+    rDate = "Invalid Date";
+  }
+  
+  let resObj = {};
+  if (rDate != "Invalid Date") {
+    resObj.utc = rDate.toUTCString();
+    resObj.unix = Math.floor(rDate.getTime());   
+  } else {
+    resObj.error = "Invalid Date";
+  };
+
+  response.json(resObj);
 })
 
 
